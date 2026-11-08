@@ -48,6 +48,7 @@ input{width:100%;font:inherit;font-size:18px;padding:12px;border-radius:14px;bor
 .cat{border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:14px;padding:8px 4px;font:inherit;font-size:12.5px;cursor:pointer}.cat span{display:block;font-size:24px}
 .cat.on{background:var(--pri);color:var(--priT);border-color:var(--pri)}
 .btns{display:flex;gap:8px;margin-top:16px}
+.gh{border:1px solid var(--line);background:none;color:var(--text);border-radius:14px;font:inherit;font-weight:700;padding:14px 18px;cursor:pointer}
 .btn{flex:1;border:none;border-radius:14px;background:var(--pri);color:var(--priT);font:inherit;font-size:17px;font-weight:800;padding:14px;cursor:pointer}
 .danger{border:none;border-radius:14px;background:var(--bad);color:#fff;font:inherit;font-weight:800;padding:14px 18px;cursor:pointer}
 .ghost{width:100%;margin-top:10px;border:1px solid var(--line);background:none;color:var(--text);border-radius:14px;padding:12px;font:inherit;cursor:pointer}
@@ -88,28 +89,28 @@ function render(){
   const m=db[cur]||{budget:null,exp:[]};const [y,mo]=cur.split("-").map(Number);
   $("#mt").textContent=MN[mo-1]+" "+y;const root=$("#main"),fab=$("#fab");
   if(m.budget==null){fab.hidden=true;const p=db[shift(cur,-1)];
-    root.innerHTML=`<div class="card setup"><div class="big">💰</div><h2>ابدأي ميزانية ${MN[mo-1]}</h2><p>اكتبي المبلغ الكامل اللي معاكي للشهر ده</p><input id="bud" type="number" inputmode="decimal" placeholder="مثلًا 5000"><button class="btn" data-a="start">ابدأ الشهر</button>${p&&p.budget!=null?`<button class="ghost" data-a="same">نفس مبلغ الشهر اللي فات (${fmt(p.budget)} جنيه)</button>`:""}</div>`;
+    root.innerHTML=`<div class="card setup"><div class="big">💰</div><h2>ابدأ ميزانية ${MN[mo-1]}</h2><p>اكتب المبلغ الكامل اللي معاك للشهر ده</p><input id="bud" type="number" inputmode="decimal" placeholder="مثلًا 5000"><button class="btn" data-a="start">ابدأ الشهر</button>${p&&p.budget!=null?`<button class="ghost" data-a="same">نفس مبلغ الشهر اللي فات (${fmt(p.budget)} جنيه)</button>`:""}</div>`;
     return}
   fab.hidden=false;
   const spent=m.exp.reduce((s,e)=>s+e.amt,0),rem=m.budget-spent,pct=m.budget>0?Math.max(0,Math.min(100,spent/m.budget*100)):100;
   const cls=rem<=0?"bad":rem<=m.budget*0.2?"warn":"";let msg="";
-  if(rem<0)msg=`⚠️ عدّيتي الميزانية بـ ${fmt(-rem)} جنيه`;
+  if(rem<0)msg=`⚠️ عدّيت الميزانية بـ ${fmt(-rem)} جنيه`;
   else if(rem===0)msg="⚠️ الميزانية خلصت";
   else if(cls==="warn")msg="⚠️ فاضل أقل من 20% من الميزانية";
-  if(rem>0&&cur===isoOf(now).slice(0,7)){const left=new Date(y,mo,0).getDate()-now.getDate()+1;msg+=(msg?"<br>":"")+`يعني تقدري تصرفي حوالي ${fmt(Math.floor(rem/left))} جنيه في اليوم`}
-  let h=`<div class="card bal ${cls}"><div class="lbl">المتبقي</div><div class="amt">${fmt(rem)} <small>جنيه</small></div><div class="bar"><i style="width:${pct}%"></i></div><div class="meta"><span>صرفتي ${fmt(spent)}</span><span>من ${fmt(m.budget)} <button class="lnk" data-a="eb">تعديل</button></span></div>${msg?`<div class="msg">${msg}</div>`:""}</div>
+  if(rem>0&&cur===isoOf(now).slice(0,7)){const left=new Date(y,mo,0).getDate()-now.getDate()+1;msg+=(msg?"<br>":"")+`يعني تقدر تصرف حوالي ${fmt(Math.floor(rem/left))} جنيه في اليوم`}
+  let h=`<div class="card bal ${cls}"><div class="lbl">المتبقي</div><div class="amt">${fmt(rem)} <small>جنيه</small></div><div class="bar"><i style="width:${pct}%"></i></div><div class="meta"><span>صرفت ${fmt(spent)}</span><span>من ${fmt(m.budget)} <button class="lnk" data-a="eb">تعديل</button></span></div>${msg?`<div class="msg">${msg}</div>`:""}</div>
   <div class="tabs"><button class="${tab==="list"?"on":""}" data-a="tl">المصروفات</button><button class="${tab==="sum"?"on":""}" data-a="ts">الملخص</button></div>`;
-  if(!m.exp.length)h+=`<div class="empty">لسه مفيش مصروفات.<br>اضغطي على "مصروف جديد" وسجّلي أول مصروف.</div>`;
+  if(!m.exp.length)h+=`<div class="empty">لسه مفيش مصروفات.<br>اضغط على "مصروف جديد" وسجّل أول مصروف.</div>`;
   else if(tab==="list"){const ex=[...m.exp].sort((a,b)=>b.d<a.d?-1:b.d>a.d?1:0);let last="";
     for(const e of ex){if(e.d!==last){h+=`<div class="day">${dayLabel(e.d)}</div>`;last=e.d}const c=cat(e.cat);
       h+=`<div class="row" data-a="ed" data-id="${e.id}"><div class="ic">${c[1]}</div><div class="rt"><b>${c[2]}</b>${e.note?`<span>${esc(e.note)}</span>`:""}</div><div class="rm">${fmt(e.amt)}</div></div>`}}
   else{const t={};m.exp.forEach(e=>t[e.cat]=(t[e.cat]||0)+e.amt);
     h+=`<div class="card sum">`+Object.entries(t).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{const c=cat(k);return`<div class="top2"><span>${c[1]} ${c[2]}</span><span>${fmt(v)} (${Math.round(v/spent*100)}%)</span></div><div class="pb"><i style="width:${v/spent*100}%"></i></div>`}).join("")+`</div>`}
-  h+=`<div class="foot"><button class="ghost" data-a="bk">⬇️ حفظ نسخة احتياطية</button><button class="ghost" data-a="rs">⬆️ استرجاع نسخة احتياطية</button><button class="ghost" data-a="wipe">🗑️ مسح بيانات الشهر ده</button></div>`;
+  if(tab==="sum")h+=`<div class="day">النسخ الاحتياطي والبيانات</div><div class="foot"><button class="ghost" data-a="bk">⬇️ حفظ نسخة احتياطية</button><button class="ghost" data-a="rs">⬆️ استرجاع نسخة احتياطية</button><button class="ghost" data-a="wipe">🗑️ مسح بيانات الشهر ده</button></div>`;
   root.innerHTML=h}
 
 function expForm(e){pc=e?e.cat:null;const d=e?e.d:(cur===isoOf(now).slice(0,7)?isoOf(now):cur+"-01");
-  open(`<h3>${e?"تعديل مصروف":"مصروف جديد"}</h3><label>المبلغ (جنيه)</label><input id="fa" type="number" inputmode="decimal" placeholder="0" value="${e?e.amt:""}"><label>اختاري النوع</label><div class="cats">${CATS.map(c=>`<button type="button" class="cat ${pc===c[0]?"on":""}" data-a="pick" data-c="${c[0]}"><span>${c[1]}</span>${c[2]}</button>`).join("")}</div><label>ملاحظة (اختياري)</label><input id="fn" placeholder="مثلًا: خضار من السوق" value="${e?esc(e.note||""):""}"><label>التاريخ</label><input id="fd" type="date" value="${d}"><div class="btns"><button class="btn" data-a="saveE" data-id="${e?e.id:""}">حفظ</button>${e?`<button class="danger" data-a="delE" data-id="${e.id}">مسح</button>`:""}</div>`);
+  open(`<h3>${e?"تعديل مصروف":"مصروف جديد"}</h3><label>المبلغ (جنيه)</label><input id="fa" type="number" inputmode="decimal" placeholder="0" value="${e?e.amt:""}"><label>اختار النوع</label><div class="cats">${CATS.map(c=>`<button type="button" class="cat ${pc===c[0]?"on":""}" data-a="pick" data-c="${c[0]}"><span>${c[1]}</span>${c[2]}</button>`).join("")}</div><label>ملاحظة (اختياري)</label><input id="fn" placeholder="مثلًا: خضار من السوق" value="${e?esc(e.note||""):""}"><label>التاريخ</label><input id="fd" type="date" value="${d}"><div class="btns"><button class="btn" data-a="saveE" data-id="${e?e.id:""}">حفظ</button><button class="gh" data-a="cl">رجوع</button>${e?`<button class="danger" data-a="delE" data-id="${e.id}">مسح</button>`:""}</div>`);
   if(!e)setTimeout(()=>$("#fa").focus(),50)}
 
 document.addEventListener("click",ev=>{
@@ -117,25 +118,26 @@ document.addEventListener("click",ev=>{
   const t=ev.target.closest("[data-a]");if(!t)return;const a=t.dataset.a,id=t.dataset.id;
   if(a==="prev"){cur=shift(cur,-1);render()}
   else if(a==="next"){cur=shift(cur,1);render()}
-  else if(a==="start"){const v=parseFloat($("#bud").value);if(!(v>0)){alert("اكتبي المبلغ الأول");return}getM().budget=v;save();render()}
+  else if(a==="start"){const v=parseFloat($("#bud").value);if(!(v>0)){alert("اكتب المبلغ الأول");return}getM().budget=v;save();render()}
   else if(a==="same"){getM().budget=db[shift(cur,-1)].budget;save();render()}
-  else if(a==="eb"){open(`<h3>مبلغ الشهر</h3><label>المبلغ الكامل (جنيه)</label><input id="fb" type="number" inputmode="decimal" value="${getM().budget}"><div class="btns"><button class="btn" data-a="saveB">حفظ</button></div>`)}
-  else if(a==="saveB"){const v=parseFloat($("#fb").value);if(!(v>0)){alert("اكتبي مبلغ صحيح");return}getM().budget=v;save();close();render()}
+  else if(a==="eb"){open(`<h3>مبلغ الشهر</h3><label>المبلغ الكامل (جنيه)</label><input id="fb" type="number" inputmode="decimal" value="${getM().budget}"><div class="btns"><button class="btn" data-a="saveB">حفظ</button><button class="gh" data-a="cl">رجوع</button></div>`)}
+  else if(a==="saveB"){const v=parseFloat($("#fb").value);if(!(v>0)){alert("اكتب مبلغ صحيح");return}getM().budget=v;save();close();render()}
   else if(a==="add"){expForm(null)}
+  else if(a==="cl"){close()}
   else if(a==="ed"){expForm(getM().exp.find(e=>e.id===id))}
   else if(a==="pick"){pc=t.dataset.c;document.querySelectorAll(".cat").forEach(b=>b.classList.toggle("on",b.dataset.c===pc))}
-  else if(a==="saveE"){const amt=parseFloat($("#fa").value);if(!(amt>0)){alert("اكتبي المبلغ");return}if(!pc){alert("اختاري نوع المصروف");return}
+  else if(a==="saveE"){const amt=parseFloat($("#fa").value);if(!(amt>0)){alert("اكتب المبلغ");return}if(!pc){alert("اختار نوع المصروف");return}
     const note=$("#fn").value.trim(),d=$("#fd").value||isoOf(now),m=getM();
     if(id){const e=m.exp.find(x=>x.id===id);Object.assign(e,{cat:pc,amt,note,d})}else m.exp.push({id:Date.now().toString(36),cat:pc,amt,note,d});
     save();close();render()}
-  else if(a==="delE"){if(confirm("تمسحي المصروف ده؟")){const m=getM();m.exp=m.exp.filter(x=>x.id!==id);save();close();render()}}
+  else if(a==="delE"){if(confirm("تمسح المصروف ده؟")){const m=getM();m.exp=m.exp.filter(x=>x.id!==id);save();close();render()}}
   else if(a==="tl"){tab="list";render()}else if(a==="ts"){tab="sum";render()}
   else if(a==="bk"){const b=new Blob([JSON.stringify(db)],{type:"application/json"}),l=document.createElement("a");l.href=URL.createObjectURL(b);l.download="مصروف-البيت-نسخة.json";l.click()}
   else if(a==="rs"){$("#file").click()}
-  else if(a==="wipe"){if(confirm("هيتمسح كل اللي في الشهر ده. متأكدة؟")){delete db[cur];save();render()}}
+  else if(a==="wipe"){if(confirm("هيتمسح كل اللي في الشهر ده. متأكد؟")){delete db[cur];save();render()}}
 });
 $("#file").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{const o=JSON.parse(r.result);if(typeof o!=="object"||!o)throw 0;if(confirm("هيتم استبدال كل البيانات الحالية بالنسخة دي. متأكدة؟")){db=o;save();render()}}catch(x){alert("الملف ده مش نسخة صحيحة")}e.target.value=""};r.readAsText(f)});
+  r.onload=()=>{try{const o=JSON.parse(r.result);if(typeof o!=="object"||!o)throw 0;if(confirm("هيتم استبدال كل البيانات الحالية بالنسخة دي. متأكد؟")){db=o;save();render()}}catch(x){alert("الملف ده مش نسخة صحيحة")}e.target.value=""};r.readAsText(f)});
 render();
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 </script>
